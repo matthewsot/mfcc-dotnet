@@ -39,21 +39,6 @@ module public MFCC =
             };
             _filterbank
 
-    let apply_filter (fft_output, filter : triangle_filter) =
-        let total = Array.length fft_output - 1;
-        seq {
-            for i in 0 .. total do
-                if (i = filter.peak_bin) then
-                    yield fft_output.[i];
-                elif (i > filter.start_bin && i < filter.peak_bin) then
-                    let filter_weight = float (i - filter.start_bin) / float (filter.peak_bin - filter.start_bin);
-                    yield fft_output.[i] * filter_weight;
-                elif (i > filter.peak_bin && i < filter.end_bin) then
-                    let filter_weight = float (filter.end_bin - i) / float (filter.end_bin - filter.peak_bin);
-                    yield fft_output.[i] * filter_weight;
-                else yield 0.0;
-        }
-
     //A more efficient Seq.sum(apply_filter())
     let apply_and_sum_filter (fft_output : float[], filter : triangle_filter) =
         let mutable total = 0.0;
@@ -92,13 +77,10 @@ module public MFCC =
         //let abs_output = complex_output |> Array.map(fun sample -> abs sample.Real + abs sample.Imaginary);
 
         let filters = compute_filterbank(num_filters, Array.length abs_output, 48000.0);
-        let accumulator = Array.zeroCreate<float>(Array.length abs_output);
 
         let mel_output = filters |>
                             Seq.take(num_features) |>
                             Seq.map(fun filter -> log10(apply_and_sum_filter(abs_output, filter))) |>
                             Seq.toArray;
-                            //|> Seq.fold (fun acc el -> acc |> Array.mapi(fun index acc_el -> acc_el + (el |> Seq.nth(index)))) accumulator;
 
-        let dct_output = dct(mel_output);
-        dct_output;
+        dct(mel_output);
