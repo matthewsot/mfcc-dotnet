@@ -79,8 +79,7 @@ module public MFCC =
         let filters = compute_filterbank(num_filters, Array.length abs_output, 48000.0);
 
         let mel_output = filters |>
-                            Seq.take(num_features) |>
                             Seq.map(fun filter -> log10(apply_and_sum_filter(abs_output, filter))) |>
                             Seq.toArray;
 
-        dct(mel_output);
+        dct(mel_output) |> Array.take(num_features);

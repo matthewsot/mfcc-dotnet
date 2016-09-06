@@ -1,10 +1,14 @@
 # mfcc-dotnet
 An FSharp/.NET library for MFCC audio feature extraction.
 
+# Usage
+Just call ``MFCC.compute(samples, num_filters, num_features)`` where ``samples`` is a ``double[]`` containing the raw amplitude samples, ``num_filters`` is the number of mel filters to apply, and ``num_features`` is the number of resulting features to take.
+
 # Implementation
 This MFCC implementation is partially based off of the guide at [Practical Cryptography](http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/#computing-the-mel-filterbank).
 
 The specific steps it takes are:
+
 1. Compute a Hamming window using MathDotNet and apply it to the samples
 2. Perform an in-place FFT on the windowed samples using MathDotNet, then take the magnitude of each of the FFT outputs
 3. Compute the MFCC filterbank (or read from cached version)
@@ -14,6 +18,7 @@ The specific steps it takes are:
 
 # Performance
 I have tried to keep optimization in mind, but no promises are made regarding the speed or efficiency of the code.
+Anecdotally, I have successfully used this library in a real-time, GMM-based C# speaker recognition system so it should work.
 
 Some optimizations include:
 - The filterbank is cached after it's first created
